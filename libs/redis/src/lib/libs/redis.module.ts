@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { RedisExchangeService } from './exchange.service';
+import { RedisLockService } from './lock.service';
 
+@Global()
 @Module({
-  controllers: [],
-  providers: [RedisExchangeService],
-  exports: [RedisExchangeService],
+  providers: [RedisExchangeService, RedisLockService],
+  exports: [RedisExchangeService, RedisLockService],
 })
 export class LibsRedisModule {}
