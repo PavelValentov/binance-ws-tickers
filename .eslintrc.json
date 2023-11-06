@@ -40,7 +40,12 @@
       "extends": [
         "plugin:@nx/typescript"
       ],
-      "rules": {}
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/no-inferrable-types": "off",
+        "no-inferrable-types": ["off", "ignore-params", "ignore-properties"]
+      }
     },
     {
       "files": [

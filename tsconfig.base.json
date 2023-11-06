@@ -1,6 +1,9 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "strictPropertyInitialization": false,
     "rootDir": ".",
     "sourceMap": true,
     "declaration": false,
@@ -8,13 +11,21 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "target": "es2015",
     "module": "esnext",
-    "lib": ["es2020", "dom"],
+    "target": "ES2021",
+    "lib": ["es2021", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@common/*": ["libs/*"],
+      "@exchanges/common": ["libs/common/src/index.ts"],
+      "@exchanges/prisma-schema": ["libs/prisma-schema/prisma/schema.prisma"],
+      "@exchanges/redis": ["libs/redis/src/index.ts"],
+      "@exchanges/ws-exchange": ["libs/ws-exchange/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

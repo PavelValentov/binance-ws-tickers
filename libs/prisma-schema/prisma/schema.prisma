@@ -1,0 +1,46 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  // output into a separate subdirectory so multiple schemas can be used in a monorepo
+  // Customize to make the most sense for your project
+  output   = "../../../node_modules/@prisma/client"
+}
+
+datasource db {
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+model Synonym {
+  id       Int      @id @default(autoincrement())
+  name     String   @unique
+  disabled Boolean  @default(false)
+  Ticker   Ticker[]
+}
+
+model Exchange {
+  id       Int      @id @default(autoincrement())
+  name     String   @unique
+  disabled Boolean  @default(false)
+  Ticker   Ticker[]
+}
+
+model Ticker {
+  id         Int      @id @default(autoincrement())
+  synonymId  Int
+  exchangeId Int
+  time       DateTime
+  ask        Float
+  bid        Float
+  askVolume  Float
+  bidVolume  Float
+  close      Float    @default(0)
+  exchange   Exchange @relation(fields: [exchangeId], references: [id])
+  synonym    Synonym  @relation(fields: [synonymId], references: [id])
+
+  @@unique([synonymId, exchangeId, time])
+  @@index([synonymId, exchangeId])
+}
