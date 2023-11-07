@@ -1,8 +1,14 @@
-import { Controller, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  HttpStatus,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import {
   API_METHODS,
   MICRO_SERVICE,
   RPC_PAYLOAD,
+  RPC_RESPONSE,
   Ticker,
 } from '@exchanges/common';
 import { BalancerGuard, BalancerInterceptor } from '@exchanges/intra';
@@ -21,10 +27,23 @@ export class AppController {
       symbol: string;
       exchangeId: string;
     }>,
-  ): Promise<string[]> {
+  ): Promise<RPC_RESPONSE<string[]>> {
     const { symbol, exchangeId } = data;
 
-    return this.service.addSymbol({ exchangeId, symbol });
+    const res = await this.service.addSymbol({ exchangeId, symbol });
+
+    if (typeof res === 'string') {
+      return {
+        statusCode: HttpStatus.BAD_REQUEST,
+        error: res,
+        message: `Error adding symbol ${symbol} to ${exchangeId} exchange`,
+      };
+    }
+
+    return {
+      statusCode: HttpStatus.OK,
+      data: res,
+    };
   }
 
   @UseInterceptors(BalancerInterceptor)
@@ -35,10 +54,23 @@ export class AppController {
       symbol: string;
       exchangeId: string;
     }>,
-  ): Promise<string[]> {
+  ): Promise<RPC_RESPONSE<string[]>> {
     const { symbol, exchangeId } = data;
 
-    return this.service.deleteSymbol({ exchangeId, symbol });
+    const res = await this.service.deleteSymbol({ exchangeId, symbol });
+
+    if (typeof res === 'string') {
+      return {
+        statusCode: HttpStatus.BAD_REQUEST,
+        error: res,
+        message: `Error deleting symbol ${symbol} from ${exchangeId} exchange`,
+      };
+    }
+
+    return {
+      statusCode: HttpStatus.OK,
+      data: res,
+    };
   }
 
   @UseGuards(BalancerGuard)

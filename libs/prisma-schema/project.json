@@ -17,7 +17,7 @@
       }
     },
     "migrate": {
-      "command": "prisma migrate dev",
+      "command": "prisma migrate dev --name init",
       "options": {
         "cwd": "libs/prisma-schema"
       }

@@ -2,12 +2,14 @@ import { Global, Module } from '@nestjs/common';
 import process from 'node:process';
 import { ClientProxyFactory, Transport } from '@nestjs/microservices';
 import { INTRA_CLIENT } from '@exchanges/common';
+import { LibsRedisModule } from '@exchanges/redis';
 import { BalancerInterceptor } from './rpc-balancer.interceptor';
 import { IntraAPIService } from './intra.service';
 import { BalancerGuard } from './rpc-balancer.guard';
 
 @Global()
 @Module({
+  imports: [LibsRedisModule],
   providers: [
     {
       provide: INTRA_CLIENT,

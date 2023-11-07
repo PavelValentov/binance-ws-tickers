@@ -85,8 +85,8 @@ export class IntraAPIService {
   async addSymbol(data: {
     symbol: string;
     exchangeId: string;
-  }): Promise<string[] | null> {
-    return this.get<
+  }): Promise<RPC_RESPONSE<string[]>> {
+    return this.call<
       string[],
       {
         symbol: string;
@@ -104,8 +104,8 @@ export class IntraAPIService {
   async deleteSymbol(data: {
     symbol: string;
     exchangeId: string;
-  }): Promise<string[] | null> {
-    return this.get<
+  }): Promise<RPC_RESPONSE<string[]>> {
+    return this.call<
       string[],
       {
         symbol: string;

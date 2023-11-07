@@ -9,8 +9,10 @@
     "prod:api": "node ./dist/apps/api/main.js",
     "prod:ticker": "node ./dist/apps/ticker/main.js",
     "start:api": "TZ='UTC' npx nx run-many --target=serve --projects=api --configuration=development",
-    "start:api-ticker": "TZ='UTC' npx nx run-many --target=serve --projects=api,ticker --configuration=development",
-    "prisma:init": "nx run-many -t migrate --name init"
+    "start:binance-ticker": "TZ='UTC' npx nx run-many --target=serve --projects=binance-ticker --configuration=development",
+    "start:api-ticker": "TZ='UTC' npx nx run-many --target=serve --projects=api,binance-ticker --configuration=development",
+    "build": "npx nx run-many --target=build --all --parallel --configuration=production --prod --no-cache --skip-nx-cache",
+    "prisma:init": "nx run-many -t migrate"
   },
   "private": true,
   "dependencies": {
@@ -24,6 +26,7 @@
     "axios": "^1.0.0",
     "ccxt": "^1.57.87",
     "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.0",
     "ioredis": "^5.3.2",
     "pako": "^2.1.0",
     "redlock": "^5.0.0-beta.2",
