@@ -66,6 +66,9 @@ export class IntraAPIService {
 
   // *** CUSTOM RPC CALLS ***
 
+  /**
+   * Save tickers to the database
+   */
   async saveTickers(tickers: Ticker[]): Promise<void> {
     await this.emit<{ tickers: Ticker[] }>(
       API_METHODS[MICRO_SERVICE.TICKER].saveTicker,
@@ -76,6 +79,9 @@ export class IntraAPIService {
     );
   }
 
+  /**
+   * Add a symbol to the feeder list
+   */
   async addSymbol(data: {
     symbol: string;
     exchangeId: string;
@@ -92,6 +98,9 @@ export class IntraAPIService {
     });
   }
 
+  /**
+   * Delete a symbol from the feeder list
+   */
   async deleteSymbol(data: {
     symbol: string;
     exchangeId: string;
