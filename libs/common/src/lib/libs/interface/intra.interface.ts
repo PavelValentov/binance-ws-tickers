@@ -13,6 +13,6 @@ export class RPC_RESPONSE<TData> {
 }
 
 export type RPC_PAYLOAD<TInput> = TInput & {
-  lockId: string[];
+  lockId: string;
   lockTtl?: number;
 };

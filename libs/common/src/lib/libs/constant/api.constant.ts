@@ -15,8 +15,8 @@ export enum API_RESPONSE_STATUS {
 // !!! it is necessary to add microservice ID before each method, before the dot
 export const API_METHODS = {
   [MICRO_SERVICE.TICKER]: {
-    getHealth: `${MICRO_SERVICE.TICKER}.getHealth`,
-    haltAndCatchFire: `${MICRO_SERVICE.TICKER}.haltAndCatchFire`,
     saveTicker: `${MICRO_SERVICE.TICKER}.saveTicker`,
+    addSymbol: `${MICRO_SERVICE.TICKER}.addSymbol`,
+    deleteSymbol: `${MICRO_SERVICE.TICKER}.deleteSymbol`,
   },
 };
