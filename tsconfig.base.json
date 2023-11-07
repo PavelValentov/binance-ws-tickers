@@ -22,6 +22,7 @@
     "paths": {
       "@exchanges/common": ["libs/common/src/index.ts"],
       "@exchanges/intra": ["libs/intra/src/index.ts"],
+      "@exchanges/prisma-client": ["libs/prisma-client/src/index.ts"],
       "@exchanges/prisma-schema": ["libs/prisma-schema/prisma/schema.prisma"],
       "@exchanges/redis": ["libs/redis/src/index.ts"],
       "@exchanges/ws-exchange": ["libs/ws-exchange/src/index.ts"]

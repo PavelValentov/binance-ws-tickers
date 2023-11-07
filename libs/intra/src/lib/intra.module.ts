@@ -1,11 +1,12 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import process from 'node:process';
 import { ClientProxyFactory, Transport } from '@nestjs/microservices';
+import { INTRA_CLIENT } from '@exchanges/common';
 import { BalancerInterceptor } from './rpc-balancer.interceptor';
 import { IntraAPIService } from './intra.service';
 import { BalancerGuard } from './rpc-balancer.guard';
-import { INTRA_CLIENT } from './intra.interface';
 
+@Global()
 @Module({
   providers: [
     {

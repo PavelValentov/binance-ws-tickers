@@ -12,7 +12,11 @@ import {
   ORDER_EVENT,
 } from '@angry-api/backend/common';
 import { RedisHeartbeatService } from '@angry-api/backend/storage';
-import { INTRA_CLIENT, RPC_PAYLOAD, RPC_RESPONSE } from './intra.interface';
+import {
+  INTRA_CLIENT,
+  RPC_PAYLOAD,
+  RPC_RESPONSE,
+} from '../../../common/src/lib/libs/interface/intra.interface';
 import { removeCircularReferences } from '@exchanges/common';
 
 @Global()

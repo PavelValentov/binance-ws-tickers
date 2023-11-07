@@ -1,14 +1,23 @@
-import { CanActivate, ExecutionContext, HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import {
+  CanActivate,
+  ExecutionContext,
+  HttpStatus,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
+import { Observable, of } from 'rxjs';
 import { instanceID } from '@angry-api/backend/common';
 import { RedisHeartbeatService } from '@angry-api/backend/storage';
+import { RPC_PAYLOAD } from '@exchanges/common';
 
 @Injectable()
 export class BalancerGuard implements CanActivate {
   constructor(private readonly heartbeat: RedisHeartbeatService) {}
 
-  canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
-    const data = context.switchToRpc().getData();
+  canActivate(
+    context: ExecutionContext,
+  ): boolean | Promise<boolean> | Observable<boolean> {
+    const data = context.switchToRpc().getData() as RPC_PAYLOAD<any>;
     const ctx = context.switchToRpc().getContext();
     const instance = instanceID();
 
@@ -16,16 +25,43 @@ export class BalancerGuard implements CanActivate {
 
     const method = ctx.args?.[0] || 'Unknown.Method';
 
-    if (!data?.callId) {
-      Logger.error(`No callId provided for ${method}`);
+    if (!data?.lockId?.length) {
+      Logger.error(`No lock ID provided for ${method}`);
 
-      throw new HttpException('No callId provided', HttpStatus.BAD_REQUEST);
+      return false;
     }
 
-    if (!data?.instance) {
-      Logger.error(`No instance provided for ${method}`);
+    let lock: any;
+    try {
+      lock = await this.lock.tryLockResource(data.lockId, 0, data.lockTtl);
 
-      throw new HttpException('No instance provided', HttpStatus.BAD_REQUEST);
+      // tryLockResource can return NULL
+      if (!lock) {
+        const error = `Failed to lock resource ${data.lockId}`;
+        const message = `RPC ERROR: ${
+          data.lockId
+        } of ${method} with ${JSON.stringify(data)}, error: ${error}`;
+
+        Logger.error(error, message, 'BalancerInterceptor');
+
+        return of({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          error,
+          message,
+        });
+      }
+
+      instanceFlag = true;
+    } catch (err: any) {
+      Logger.error(
+        `Failed to lock resource ${data.lockId}: ${err.message}`,
+        'BalancerInterceptor',
+      );
+
+      return of({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        error: err.message,
+      });
     }
 
     const allow = data.instance === instance;

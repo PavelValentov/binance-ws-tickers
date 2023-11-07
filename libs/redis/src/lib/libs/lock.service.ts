@@ -50,4 +50,15 @@ export class RedisLockService extends RedisService {
 
     return lock;
   }
+
+  async releaseLock(lock: Lock): Promise<void> {
+    try {
+      await lock.release();
+    } catch (err: any) {
+      Logger.error(
+        `Failed to release lock: ${err.message}`,
+        'RedisLockService',
+      );
+    }
+  }
 }

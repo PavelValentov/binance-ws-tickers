@@ -26,8 +26,8 @@ export class RedisExchangeService extends RedisService {
     return this.setHash(this.getExchangeKey(exchangeId), saveTickers);
   }
 
-  async setTicker(exchangeId: string, ticker: Ticker): Promise<void> {
-    return this.setHash(this.getExchangeKey(exchangeId), {
+  async setTicker(ticker: Ticker): Promise<void> {
+    return this.setHash(this.getExchangeKey(ticker.exchangeId), {
       [ticker.symbol]: JSON.stringify(ticker),
     });
   }
