@@ -10,8 +10,7 @@
     "prod:ticker": "node ./dist/apps/ticker/main.js",
     "start:api": "TZ='UTC' npx nx run-many --target=serve --projects=api --configuration=development",
     "start:api-ticker": "TZ='UTC' npx nx run-many --target=serve --projects=api,ticker --configuration=development",
-    "prisma:init:root": "npx prisma migrate dev --name init",
-    "prisma:init": "nx run-many -t migrate"
+    "prisma:init": "nx run-many -t migrate --name init"
   },
   "private": true,
   "dependencies": {
