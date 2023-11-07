@@ -3,7 +3,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  // output into a separate subdirectory so multiple schemas can be used in a monorepo
   // Customize to make the most sense for your project
   output   = "../../../node_modules/@prisma/client"
 }
@@ -43,7 +42,6 @@ model Ticker {
 
   @@unique([symbolId, exchangeId, time])
   @@index([symbolId, exchangeId])
-  @@index([exchangeId, time])
-  @@index([exchangeId])
   @@index([symbolId])
+  @@index([exchangeId])
 }
