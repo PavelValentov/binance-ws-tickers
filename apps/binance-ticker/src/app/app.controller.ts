@@ -1,13 +1,12 @@
-import { Controller, HttpStatus, UseInterceptors } from '@nestjs/common';
+import { Controller, UseGuards, UseInterceptors } from '@nestjs/common';
 import {
   API_METHODS,
   MICRO_SERVICE,
   RPC_PAYLOAD,
-  RPC_RESPONSE,
   Ticker,
 } from '@exchanges/common';
-import { BalancerInterceptor } from '@exchanges/intra';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { BalancerGuard, BalancerInterceptor } from '@exchanges/intra';
+import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 import { AppService } from './app.service';
 
 @Controller()
@@ -15,22 +14,36 @@ export class AppController {
   constructor(private readonly service: AppService) {}
 
   @UseInterceptors(BalancerInterceptor)
-  @MessagePattern(API_METHODS[MICRO_SERVICE.TICKER].saveTicker)
-  async getHealth(
-    @Payload() ticker: RPC_PAYLOAD<Ticker>,
-  ): Promise<RPC_RESPONSE<boolean>> {
-    const result = await this.service.saveTicker(ticker);
+  @MessagePattern(API_METHODS[MICRO_SERVICE.TICKER].addSymbol)
+  async addSymbol(
+    @Payload()
+    data: RPC_PAYLOAD<{
+      symbol: string;
+      exchangeId: string;
+    }>,
+  ): Promise<string[]> {
+    const { symbol, exchangeId } = data;
 
-    if (result) {
-      return {
-        statusCode: HttpStatus.OK,
-        data: true,
-      };
-    }
+    return this.service.addSymbol({ exchangeId, symbol });
+  }
 
-    return {
-      statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-      error: 'Error',
-    };
+  @UseInterceptors(BalancerInterceptor)
+  @MessagePattern(API_METHODS[MICRO_SERVICE.TICKER].deleteSymbol)
+  async deleteSymbol(
+    @Payload()
+    data: RPC_PAYLOAD<{
+      symbol: string;
+      exchangeId: string;
+    }>,
+  ): Promise<string[]> {
+    const { symbol, exchangeId } = data;
+
+    return this.service.deleteSymbol({ exchangeId, symbol });
+  }
+
+  @UseGuards(BalancerGuard)
+  @EventPattern(API_METHODS[MICRO_SERVICE.TICKER].saveTicker)
+  async saveTicker(@Payload() ticker: RPC_PAYLOAD<Ticker>): Promise<void> {
+    await this.service.saveTicker(ticker);
   }
 }

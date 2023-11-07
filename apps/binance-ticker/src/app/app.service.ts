@@ -13,4 +13,20 @@ export class AppService {
 
     return;
   }
+
+  async addSymbol(data: {
+    symbol: string;
+    exchangeId: string;
+  }): Promise<string[]> {
+    // add symbol to redis and prisma
+    return [];
+  }
+
+  async deleteSymbol(data: {
+    symbol: string;
+    exchangeId: string;
+  }): Promise<string[]> {
+    // remove symbol from redis and prisma
+    return [];
+  }
 }
