@@ -17,7 +17,7 @@ export class AppController {
     return this.service.getData();
   }
 
-  @Post('addSymbol')
+  @Post('add-symbol')
   @ApiTags('exchange')
   @ApiOperation({
     description: `Add a new symbol into the feeder`,
@@ -29,7 +29,7 @@ export class AppController {
     return this.service.addSymbol(body);
   }
 
-  @Post('deleteSymbol')
+  @Post('delete-symbol')
   @ApiTags('exchange')
   @ApiOperation({
     description: `Delete a symbol from the feeder`,

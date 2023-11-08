@@ -30,7 +30,10 @@ export class AppController {
   ): Promise<RPC_RESPONSE<string[]>> {
     const { symbol, exchangeId } = data;
 
-    const res = await this.service.addSymbol({ exchangeId, symbol });
+    const res = await this.service.addAllowedSymbols({
+      exchangeId,
+      symbols: [symbol],
+    });
 
     if (typeof res === 'string') {
       return {
@@ -57,7 +60,7 @@ export class AppController {
   ): Promise<RPC_RESPONSE<string[]>> {
     const { symbol, exchangeId } = data;
 
-    const res = await this.service.deleteSymbol({ exchangeId, symbol });
+    const res = await this.service.deleteAllowedSymbol({ exchangeId, symbol });
 
     if (typeof res === 'string') {
       return {
@@ -75,7 +78,15 @@ export class AppController {
 
   @UseGuards(BalancerGuard)
   @EventPattern(API_METHODS[MICRO_SERVICE.TICKER].saveTicker)
-  async saveTicker(@Payload() ticker: RPC_PAYLOAD<Ticker>): Promise<void> {
-    await this.service.saveTicker(ticker);
+  async saveTicker(@Payload() data: { ticker: Ticker }): Promise<void> {
+    await this.service.saveTicker(data.ticker);
+  }
+
+  @UseGuards(BalancerGuard)
+  @EventPattern(API_METHODS[MICRO_SERVICE.TICKER].saveTickers)
+  async saveTickers(
+    @Payload() data: { exchangeId: string; tickers: Ticker[] },
+  ): Promise<void> {
+    await this.service.saveTickers(data);
   }
 }

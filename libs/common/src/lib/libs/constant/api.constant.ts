@@ -16,6 +16,7 @@ export enum API_RESPONSE_STATUS {
 export const API_METHODS = {
   [MICRO_SERVICE.TICKER]: {
     saveTicker: `${MICRO_SERVICE.TICKER}.saveTicker`,
+    saveTickers: `${MICRO_SERVICE.TICKER}.saveTickers`,
     addSymbol: `${MICRO_SERVICE.TICKER}.addSymbol`,
     deleteSymbol: `${MICRO_SERVICE.TICKER}.deleteSymbol`,
   },

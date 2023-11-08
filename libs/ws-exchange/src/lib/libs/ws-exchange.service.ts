@@ -2,8 +2,11 @@ import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { client, connection, Message } from 'websocket';
 import { Market } from 'ccxt';
 import pako from 'pako';
+import process from 'node:process';
 import { ExchangeMessageType, Ticker } from '@exchanges/common';
 import { RedisExchangeService } from '@exchanges/redis';
+import { PrismaService } from '@exchanges/prisma-client';
+import { IntraAPIService } from '@exchanges/intra';
 
 @Injectable()
 export class ExchangeWsService implements OnApplicationBootstrap {
@@ -17,13 +20,38 @@ export class ExchangeWsService implements OnApplicationBootstrap {
 
   protected allowToConnect: boolean;
 
-  protected tickers: Record<string, Ticker> = {};
+  private allowedSymbols: string[] = [];
+  private lastCheckAllowedSymbols: number = 0;
+
   protected symbols: Record<string, string> = {};
   protected markets: Record<string, Market> = {};
 
-  constructor(protected readonly redis: RedisExchangeService) {
+  constructor(
+    protected readonly redis: RedisExchangeService,
+    protected readonly prisma: PrismaService,
+    protected readonly intra: IntraAPIService,
+  ) {
     this.connected = false;
     this.reconnecting = false;
+  }
+
+  async onApplicationBootstrap() {
+    const enabledExchanges = process.env['ENABLED_EXCHANGES']?.split(',') || [];
+    if (!this.exchangeId || !enabledExchanges.includes(this.exchangeId)) {
+      Logger.warn(
+        `[${this.exchangeId}] Exchange disabled`,
+        'ExchangeService.onApplicationBootstrap',
+      );
+      return;
+    }
+
+    this.allowToConnect = true;
+
+    setTimeout(async () => this.handleCron(), 3000);
+  }
+
+  async onBootstrap() {
+    // abstract method
   }
 
   protected sendCommand(
@@ -50,14 +78,19 @@ export class ExchangeWsService implements OnApplicationBootstrap {
     return false;
   }
 
-  async onApplicationBootstrap() {
-    this.allowToConnect = true;
+  async getAllowSymbols(): Promise<string[]> {
+    if (Date.now() - this.lastCheckAllowedSymbols > 5000) {
+      await this.updateSymbols();
+    }
 
-    setTimeout(async () => this.handleCron(), 3000);
+    return this.allowedSymbols;
   }
 
-  async onBootstrap() {
-    // abstract method
+  async updateSymbols(): Promise<boolean> {
+    this.allowedSymbols = (await this.prisma.getSymbols()) || [];
+    this.lastCheckAllowedSymbols = Date.now();
+
+    return (this.allowedSymbols?.length || 0) > 0;
   }
 
   private async onConnectionError(
@@ -148,10 +181,16 @@ export class ExchangeWsService implements OnApplicationBootstrap {
     } = await this.onCustomMessage(parsedMessage, connection);
 
     // if (executedMessage.type === ExchangeMessageType.Ticker && executedMessage.data) {
-    if (executedMessage.type === ExchangeMessageType.Ticker) {
+    if (
+      executedMessage.type === ExchangeMessageType.Ticker &&
+      executedMessage.data?.length
+    ) {
       // Logger.debug(`[${this.exchangeId}] ${result.symbol} ticker added`, 'onMessage');
       // update feeder timestamp to prevent lost feeder
-      await this.updateTickers(executedMessage.exchangeId);
+      await this.updateTickers(
+        executedMessage.exchangeId,
+        executedMessage.data,
+      );
     }
   }
 
@@ -214,12 +253,11 @@ export class ExchangeWsService implements OnApplicationBootstrap {
     await this.onAfterConnect(connection, books);
   }
 
-  private async updateTickers(exchangeId: string): Promise<void> {
-    if (!exchangeId) {
-      return;
-    }
-
-    await this.redis.setTickers(exchangeId, this.tickers);
+  private async updateTickers(
+    exchangeId: string,
+    tickers: Ticker[],
+  ): Promise<void> {
+    await this.intra.saveTickers(exchangeId, tickers);
   }
 
   // Disabled because of "The `connection` object handles this internally for you"
@@ -278,17 +316,25 @@ export class ExchangeWsService implements OnApplicationBootstrap {
       'ExchangeService.checkConnection',
     );
 
-    if (await this.updateMarkets()) {
-      await this.onBootstrap();
-
-      this.addNewConnection();
-    } else {
+    if (!(await this.updateMarkets())) {
       this.reconnecting = false;
       Logger.warn(
         `[${this.exchangeId}] There are no markets`,
         'ExchangeService.checkConnection',
       );
     }
+
+    if (!(await this.updateSymbols())) {
+      this.reconnecting = false;
+      Logger.warn(
+        `[${this.exchangeId}] There are no symbols to fetch`,
+        'ExchangeService.checkConnection',
+      );
+    }
+
+    await this.onBootstrap();
+
+    this.addNewConnection();
   }
 
   async handleCron() {

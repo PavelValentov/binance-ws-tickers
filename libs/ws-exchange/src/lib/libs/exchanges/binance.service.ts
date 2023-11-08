@@ -1,14 +1,23 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { connection } from 'websocket';
 import * as ccxt from 'ccxt';
+import { Exchange } from 'ccxt';
 import { RedisExchangeService } from '@exchanges/redis';
 import { ExchangeMessageType } from '@exchanges/common';
 import { ExchangeWsService } from '../ws-exchange.service';
+import { PrismaService } from '@exchanges/prisma-client';
+import { IntraAPIService } from '@exchanges/intra';
 
 @Injectable()
 export class BinanceService extends ExchangeWsService {
-  constructor(protected override readonly redis: RedisExchangeService) {
-    super(redis);
+  private ccxt: Exchange;
+
+  constructor(
+    protected override readonly redis: RedisExchangeService,
+    protected override readonly prisma: PrismaService,
+    protected override readonly intra: IntraAPIService,
+  ) {
+    super(redis, prisma, intra);
 
     this.exchangeId = 'binance';
     this.socketAddress = 'wss://stream.binance.com:9443/ws';
@@ -62,23 +71,34 @@ export class BinanceService extends ExchangeWsService {
   }
 
   override async onBootstrap() {
-    // abstract method
+    // after updateMarkets(), before addNewConnection() call
   }
 
   override async updateMarkets(): Promise<boolean> {
-    const exchange: any = new ccxt['binance']({
-      enableRateLimit: true,
-      verbose: false,
-      options: { defaultType: 'spot' },
-    });
+    try {
+      if (!this.ccxt) {
+        // it needs cuz every time we create a new instance of ccxt, it fetches markets
+        this.ccxt = new ccxt['binance']({
+          enableRateLimit: true,
+          verbose: false,
+          options: { defaultType: 'spot' },
+        });
+      }
 
-    this.markets = await exchange.loadMarkets(false);
+      this.markets = await this.ccxt.loadMarkets(false);
 
-    for (const market of Object.values(this.markets)) {
-      this.symbols[market.id] = market.symbol;
+      for (const market of Object.values(this.markets)) {
+        this.symbols[market.id] = market.symbol;
+      }
+
+      return true;
+    } catch (e: any) {
+      Logger.error(
+        `[${this.exchangeId}] ${e.message}`,
+        'Binance.updateMarkets',
+      );
+      return false;
     }
-
-    return true;
   }
 
   override async onCustomMessage(
@@ -95,7 +115,16 @@ export class BinanceService extends ExchangeWsService {
       message.length &&
       message[0]?.e === '24hrTicker'
     ) {
+      const allowed = await this.getAllowSymbols();
+      if (!allowed?.length) {
+        return {
+          exchangeId: this.exchangeId,
+          type: ExchangeMessageType.Ticker,
+        };
+      }
+
       const tickers = [];
+
       for (const ticker of message) {
         if (!ticker.a || !ticker.b) {
           continue;
@@ -104,14 +133,14 @@ export class BinanceService extends ExchangeWsService {
         const synonym = ticker.s;
         const symbol = this.symbols[ticker.s];
 
-        if (!symbol) {
+        if (!symbol || !allowed.includes(symbol)) {
           continue;
         }
 
         // const timestamp = +ticker.E || Date.now();
-        const timestamp = Date.now();
-        if (this.tickers[symbol]?.time || 0 <= +ticker.E || 0) {
-          this.tickers[symbol] = {
+        const timestamp = +ticker?.E;
+        if (timestamp) {
+          tickers.push({
             exchangeId: this.exchangeId,
             symbol,
             synonym,
@@ -121,9 +150,7 @@ export class BinanceService extends ExchangeWsService {
             ask: +ticker.a || 0,
             askVolume: +ticker.A || 0,
             close: +ticker.c || 0,
-          };
-
-          tickers.push(this.tickers[symbol]);
+          });
         }
       }
 

@@ -12,7 +12,9 @@
     "start:binance-ticker": "TZ='UTC' npx nx run-many --target=serve --projects=binance-ticker --configuration=development",
     "start:api-ticker": "TZ='UTC' npx nx run-many --target=serve --projects=api,binance-ticker --configuration=development",
     "build": "npx nx run-many --target=build --all --parallel --configuration=production --prod --no-cache --skip-nx-cache",
-    "prisma:init": "nx run-many -t migrate"
+    "prisma:init": "nx run-many -t migrate",
+    "prisma:generate": "nx run-many -t generate-types",
+    "prisma:db-pull": "nx run-many -t db-pull"
   },
   "private": true,
   "dependencies": {

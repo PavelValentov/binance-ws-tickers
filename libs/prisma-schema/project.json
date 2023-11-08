@@ -10,6 +10,12 @@
         "cwd": "libs/prisma-schema"
       }
     },
+    "db-pull": {
+      "command": "prisma generate",
+      "options": {
+        "cwd": "libs/prisma-schema"
+      }
+    },
     "generate-types": {
       "command": "prisma generate",
       "options": {

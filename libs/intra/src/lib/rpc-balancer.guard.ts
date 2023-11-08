@@ -46,6 +46,10 @@ export class BalancerGuard implements CanActivate {
       return false;
     }
 
+    // clear payload
+    delete data.lockId;
+    delete data.lockTtl;
+
     return true;
   }
 }

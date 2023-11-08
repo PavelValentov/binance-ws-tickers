@@ -67,14 +67,31 @@ export class IntraAPIService {
   // *** CUSTOM RPC CALLS ***
 
   /**
-   * Save tickers to the database
+   * Save a ticker to the databases
    */
-  async saveTickers(tickers: Ticker[]): Promise<void> {
-    await this.emit<{ tickers: Ticker[] }>(
+  async saveTicker(ticker: Ticker): Promise<void> {
+    await this.emit<{ ticker: Ticker }>(
       API_METHODS[MICRO_SERVICE.TICKER].saveTicker,
       {
+        ticker,
+        lockId: `${API_METHODS[MICRO_SERVICE.TICKER].saveTicker}.${
+          ticker.symbol
+        }`,
+      },
+    );
+  }
+
+  /**
+   * Save tickers to the databases
+   */
+  async saveTickers(exchangeId: string, tickers: Ticker[]): Promise<void> {
+    await this.emit<{ exchangeId: string; tickers: Ticker[] }>(
+      API_METHODS[MICRO_SERVICE.TICKER].saveTickers,
+      {
+        exchangeId,
         tickers,
-        lockId: API_METHODS[MICRO_SERVICE.TICKER].saveTicker,
+        lockId: API_METHODS[MICRO_SERVICE.TICKER].saveTickers,
+        lockTtl: 1000 * 10, // 10 seconds
       },
     );
   }
