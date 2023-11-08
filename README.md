@@ -56,7 +56,7 @@ docker-compose up --build
 
 ### API Документация
 
-Для просмотра Swagger документации API, перейдите по ссылке [http://localhost:3000/api](http://localhost:3000/api) после запуска сервисов.
+Для просмотра Swagger документации API, перейдите по ссылке [http://localhost:6767/v1/doc](http://localhost:6767/v1/doc) после запуска сервисов.
 
 ## Работа с микросервисом
 
