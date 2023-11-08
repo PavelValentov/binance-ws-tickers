@@ -17,6 +17,15 @@ export class AppController {
     return this.service.getData();
   }
 
+  @Get('/get-symbols')
+  @ApiTags('exchange')
+  @ApiOperation({
+    description: `Get allowed symbol list`,
+  })
+  getSymbols() {
+    return this.service.getSymbols();
+  }
+
   @Post('add-symbol')
   @ApiTags('exchange')
   @ApiOperation({

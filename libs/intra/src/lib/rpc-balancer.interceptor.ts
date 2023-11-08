@@ -73,9 +73,9 @@ export class BalancerInterceptor implements NestInterceptor {
     // wait for lock to be released
     if (!instanceFlag) {
       while (!lock && Date.now() - start < this.timeoutLimit) {
-        lock = await this.lock.tryLockResource(data.lockId, 0, data.lockTtl);
-
         await new Promise((resolve) => setTimeout(resolve, 50));
+
+        lock = await this.lock.tryLockResource(data.lockId, 0, data.lockTtl);
       }
       if (lock) {
         await this.lock.releaseLock(lock);

@@ -20,6 +20,15 @@ export class AppController {
   constructor(private readonly service: AppService) {}
 
   @UseInterceptors(BalancerInterceptor)
+  @MessagePattern(API_METHODS[MICRO_SERVICE.TICKER].getSymbols)
+  async getSymbols(): Promise<RPC_RESPONSE<string[]>> {
+    return {
+      statusCode: HttpStatus.OK,
+      data: await this.service.getSymbols(),
+    };
+  }
+
+  @UseInterceptors(BalancerInterceptor)
   @MessagePattern(API_METHODS[MICRO_SERVICE.TICKER].addSymbol)
   async addSymbol(
     @Payload()

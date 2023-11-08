@@ -17,6 +17,7 @@ export const API_METHODS = {
   [MICRO_SERVICE.TICKER]: {
     saveTicker: `${MICRO_SERVICE.TICKER}.saveTicker`,
     saveTickers: `${MICRO_SERVICE.TICKER}.saveTickers`,
+    getSymbols: `${MICRO_SERVICE.TICKER}.getSymbols`,
     addSymbol: `${MICRO_SERVICE.TICKER}.addSymbol`,
     deleteSymbol: `${MICRO_SERVICE.TICKER}.deleteSymbol`,
   },

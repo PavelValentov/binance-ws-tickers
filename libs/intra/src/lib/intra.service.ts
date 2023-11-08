@@ -97,6 +97,18 @@ export class IntraAPIService {
   }
 
   /**
+   * Get the list of allowed symbols
+   */
+  async getSymbols(): Promise<RPC_RESPONSE<string[]>> {
+    return this.call<string[], {}>(
+      API_METHODS[MICRO_SERVICE.TICKER].getSymbols,
+      {
+        lockId: API_METHODS[MICRO_SERVICE.TICKER].getSymbols,
+      },
+    );
+  }
+
+  /**
    * Add a symbol to the feeder list
    */
   async addSymbol(data: {

@@ -12,6 +12,10 @@ export class AppService {
     return { message: `Works: ${process.uptime().toString()}` };
   }
 
+  async getSymbols(): Promise<RPC_RESPONSE<string[]>> {
+    return this.intra.getSymbols();
+  }
+
   async addSymbol(data: SymbolOperation): Promise<RPC_RESPONSE<string[]>> {
     return this.intra.addSymbol(data);
   }

@@ -32,6 +32,10 @@ export class AppService {
     ]);
   }
 
+  async getSymbols(): Promise<string[]> {
+    return this.getAllowedSymbols();
+  }
+
   async addAllowedSymbols(data: {
     exchangeId: string;
     symbols: string[];

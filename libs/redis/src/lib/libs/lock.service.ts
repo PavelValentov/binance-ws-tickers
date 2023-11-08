@@ -55,10 +55,10 @@ export class RedisLockService extends RedisService {
     try {
       await lock.release();
     } catch (err: any) {
-      Logger.error(
-        `Failed to release lock: ${err.message}`,
-        'RedisLockService',
-      );
+      // Logger.debug(
+      //   `Failed to release lock: ${err.message}`,
+      //   'RedisLockService',
+      // );
     }
   }
 }
