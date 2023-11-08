@@ -1,4 +1,4 @@
-import { Global, Injectable, Logger } from '@nestjs/common';
+import { Global, Injectable } from '@nestjs/common';
 import { RedisService } from './redis.service';
 import Redlock, { Lock } from 'redlock';
 
@@ -45,7 +45,7 @@ export class RedisLockService extends RedisService {
     try {
       lock = await this.getRedlock(retryCount).acquire(resources, ttl || 5000);
     } catch (error: any) {
-      Logger.debug(`Lock failed: ${error.message}`, 'RedisLockService');
+      // Logger.debug(`Lock failed: ${error.message}`, 'RedisLockService');
     }
 
     return lock;

@@ -14,6 +14,8 @@ const corsOptionsDelegate = function (origin, callback) {
 };
 
 (async function () {
+  process.setMaxListeners(100);
+
   const app = await NestFactory.create(AppModule, {
     cors: {
       credentials: true,

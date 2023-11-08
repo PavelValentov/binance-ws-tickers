@@ -4,6 +4,8 @@ import { RedisOptions, Transport } from '@nestjs/microservices';
 import { AppModule } from './app/app.module';
 
 (async function () {
+  process.setMaxListeners(100);
+
   const app = await NestFactory.createMicroservice<RedisOptions>(AppModule, {
     transport: Transport.REDIS,
     options: {

@@ -29,18 +29,18 @@ export class BalancerGuard implements CanActivate {
 
       // tryLockResource can return NULL
       if (!lock) {
-        const message = `RPC ERROR: Failed to lock resource ${
-          data.lockId
-        } of ${method} with ${JSON.stringify(data)}`;
-
-        Logger.error(message, 'BalancerInterceptor');
+        // const message = `RPC ERROR: Failed to lock resource ${
+        //   data.lockId
+        // } of ${method} with ${JSON.stringify(data)}`;
+        //
+        // Logger.error(message, 'BalancerGuard');
 
         return false;
       }
     } catch (err: any) {
       Logger.debug(
         `Failed to lock resource ${data.lockId}: ${err.message}`,
-        'BalancerInterceptor',
+        'BalancerGuard',
       );
 
       return false;
