@@ -1,6 +1,7 @@
-FROM node:20-alpine as base
+FROM node:20 as base
 
-RUN apk update && npm i -g npm@latest
+#RUN apk update && npm i -g npm@latest
+RUN apt update; npm i -g npm@latest
 
 WORKDIR /usr/app
 

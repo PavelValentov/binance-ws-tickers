@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { RedisExchangeService } from '@exchanges/redis';
 import { Ticker, TickerType } from '@exchanges/common';
 import { PrismaService } from '@exchanges/prisma-client';
@@ -11,6 +11,8 @@ export class AppService {
   ) {}
 
   async saveTicker(ticker: Ticker): Promise<void> {
+    Logger.debug(`Saving ticker [${ticker.exchangeId}] ${ticker.symbol}`);
+
     await this.redisTicker.setTicker(ticker);
 
     await this.prisma.saveTicker(ticker);

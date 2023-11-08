@@ -43,7 +43,7 @@ export class RedisLockService extends RedisService {
   ): Promise<Lock | null> {
     let lock: Lock | null = null;
     try {
-      lock = await this.getRedlock(retryCount).acquire(resources, ttl || 5000);
+      lock = await this.getRedlock(retryCount).acquire(resources, ttl || 1000);
     } catch (error: any) {
       // Logger.debug(`Lock failed: ${error.message}`, 'RedisLockService');
     }

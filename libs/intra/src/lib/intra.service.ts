@@ -77,6 +77,7 @@ export class IntraAPIService {
         lockId: `${API_METHODS[MICRO_SERVICE.TICKER].saveTicker}.${
           ticker.symbol
         }`,
+        lockTtl: 1000,
       },
     );
   }
@@ -91,7 +92,7 @@ export class IntraAPIService {
         exchangeId,
         tickers,
         lockId: API_METHODS[MICRO_SERVICE.TICKER].saveTickers,
-        lockTtl: 1000 * 10, // 10 seconds
+        lockTtl: 1000 * 3, // 3 seconds
       },
     );
   }

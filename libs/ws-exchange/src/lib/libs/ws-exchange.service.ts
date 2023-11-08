@@ -261,7 +261,9 @@ export class ExchangeWsService implements OnApplicationBootstrap {
       `Save tickers: ${JSON.stringify(tickers)}`,
       'ExchangeService.updateTickers',
     );
-    await this.intra.saveTickers(exchangeId, tickers);
+
+    await Promise.all([tickers.map((ticker) => this.intra.saveTicker(ticker))]);
+    // await this.intra.saveTickers(exchangeId, tickers);
   }
 
   // Disabled because of "The `connection` object handles this internally for you"
