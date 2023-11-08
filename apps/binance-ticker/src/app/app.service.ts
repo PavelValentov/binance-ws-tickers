@@ -44,7 +44,6 @@ export class AppService {
     }
 
     await this.prisma.addExchange(data.exchangeId);
-
     await this.prisma.addSymbols(data.symbols);
 
     return this.getAllowedSymbols();
@@ -54,6 +53,8 @@ export class AppService {
     symbol: string;
     exchangeId: string;
   }): Promise<string[] | string> {
+    await this.prisma.removeSymbols(data.symbol);
+
     return this.getAllowedSymbols();
   }
 

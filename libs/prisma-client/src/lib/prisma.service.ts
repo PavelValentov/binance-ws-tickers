@@ -52,6 +52,13 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
       : [];
   }
 
+  async removeSymbols(symbol: string): Promise<void> {
+    await this.symbol.update({
+      where: { name: symbol },
+      data: { disabled: true },
+    });
+  }
+
   async getSymbols(): Promise<string[]> {
     return this.symbol
       .findMany({
