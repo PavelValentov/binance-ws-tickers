@@ -16,7 +16,7 @@ ENV NODE_ENV=production
 
 RUN npm cache verify
 RUN npm ci --omit=dev
-RUN npm run build:cache
+RUN npm run build
 
 FROM base as dev
 ENV NODE_ENV=development

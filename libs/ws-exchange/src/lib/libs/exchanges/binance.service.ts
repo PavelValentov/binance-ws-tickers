@@ -27,47 +27,11 @@ export class BinanceService extends ExchangeWsService {
     connection: connection,
     books?: string[],
   ): Promise<void> {
-    if (!books) {
-      this.sendCommand(connection, {
-        id: Date.now(),
-        method: 'SUBSCRIBE',
-        params: ['!ticker@arr'],
-      });
-
-      const books = Object.values(this.symbols).sort();
-
-      const splitBooks: string[][] = [];
-      const chunkSize = 120;
-
-      for (let i = 0; i < books.length; i += chunkSize) {
-        splitBooks.push(books.slice(i, i + chunkSize) as string[]);
-      }
-
-      // remove the first chunk
-      const chunk = splitBooks.shift();
-      if (!chunk) {
-        return;
-      }
-
-      if (!splitBooks.length) {
-        return;
-      }
-
-      for (const books of splitBooks) {
-        this.addNewConnection(books);
-      }
-    } else {
-      Logger.debug(
-        `[${this.exchangeId}] Subscribing to candles`,
-        books.length,
-        'Binance.onAfterConnect',
-      );
-      this.sendCommand(connection, {
-        id: Date.now(),
-        method: 'SUBSCRIBE',
-        params: books.map((book) => `${book.toLowerCase()}@kline_1m`),
-      });
-    }
+    this.sendCommand(connection, {
+      id: Date.now(),
+      method: 'SUBSCRIBE',
+      params: ['!ticker@arr'],
+    });
   }
 
   override async onBootstrap() {

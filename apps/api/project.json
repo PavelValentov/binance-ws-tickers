@@ -23,7 +23,12 @@
         "webpackConfig": "apps/api/webpack.config.js"
       },
       "configurations": {
-        "development": {},
+        "development": {
+          "buildTarget": "start:api-ticker",
+          "runtimeArgs": [
+            "--trace-warnings"
+          ]
+        },
         "production": {}
       }
     },

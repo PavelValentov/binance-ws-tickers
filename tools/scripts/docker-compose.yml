@@ -37,8 +37,6 @@ services:
     depends_on:
       ci:
         condition: service_completed_successfully
-      nginx:
-        condition: service_started
     ports:
       - "6767:6767"
     environment:

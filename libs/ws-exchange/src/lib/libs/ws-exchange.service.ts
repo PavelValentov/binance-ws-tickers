@@ -257,6 +257,10 @@ export class ExchangeWsService implements OnApplicationBootstrap {
     exchangeId: string,
     tickers: Ticker[],
   ): Promise<void> {
+    Logger.debug(
+      `Save tickers: ${JSON.stringify(tickers)}`,
+      'ExchangeService.updateTickers',
+    );
     await this.intra.saveTickers(exchangeId, tickers);
   }
 

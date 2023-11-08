@@ -48,7 +48,7 @@ export class BalancerInterceptor implements NestInterceptor {
           data.lockId
         } of ${method} with ${JSON.stringify(data)}, error: ${error}`;
 
-        Logger.error(error, message, 'BalancerInterceptor');
+        // Logger.error(error, message, 'BalancerInterceptor');
 
         return of({
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
