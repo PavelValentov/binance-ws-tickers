@@ -100,7 +100,7 @@ export class IntraAPIService {
    * Get the list of allowed symbols
    */
   async getSymbols(): Promise<RPC_RESPONSE<string[]>> {
-    return this.call<string[], {}>(
+    return this.call<string[], object>(
       API_METHODS[MICRO_SERVICE.TICKER].getSymbols,
       {
         lockId: API_METHODS[MICRO_SERVICE.TICKER].getSymbols,
