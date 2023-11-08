@@ -1,0 +1,11 @@
+FROM node:20-alpine as base
+
+RUN apk update && npm i -g npm@latest
+
+WORKDIR /usr/app
+
+FROM base as production
+ENV NODE_ENV=production
+
+FROM base as dev
+ENV NODE_ENV=development

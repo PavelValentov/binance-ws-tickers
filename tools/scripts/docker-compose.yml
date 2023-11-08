@@ -1,0 +1,79 @@
+version: '3.9'
+
+x-environment: &default-environment
+  REDIS_PREFIX: ${REDIS_PREFIX}
+  REDIS_HOST: ${REDIS_HOST}
+  REDIS_PORT: ${REDIS_PORT}
+  REDIS_USERNAME: ${REDIS_USERNAME}
+  REDIS_PASSWORD: ${REDIS_PASSWORD}
+  REDIS_DB: ${REDIS_DB}
+  POSTGRES_URL: ${POSTGRES_URL}
+  POSTGRES_SHADOW_URL: ${POSTGRES_SHADOW_URL}
+  ENABLED_EXCHANGES: ${ENABLED_EXCHANGES}
+  RESTAPI_PORT: ${RESTAPI_PORT}
+
+services:
+  ci:
+    build:
+      context: ../../
+      dockerfile: ./tools/scripts/Dockerfile
+      target: production
+    volumes:
+      - project_data:/usr/app
+      - ../../.env:/usr/app/.env
+
+  api:
+    build:
+      context: ../../
+      dockerfile: ./tools/scripts/RunAppDockerfile
+      target: production
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 120s
+    command: npm run prod:api
+    depends_on:
+      ci:
+        condition: service_completed_successfully
+      nginx:
+        condition: service_started
+    ports:
+      - "6767:6767"
+    environment:
+      <<: *default-environment
+    volumes:
+      - project_data:/usr/app
+    networks:
+      - default
+
+  binance-ticker:
+    build:
+      context: ../../
+      dockerfile: ./tools/scripts/RunAppDockerfile
+      target: production
+    deploy:
+      replicas: 4
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 120s
+    command: npm run prod:ticker
+    depends_on:
+      ci:
+        condition: service_completed_successfully
+    environment:
+      <<: *default-environment
+    volumes:
+      - project_data:/usr/app
+    networks:
+      - default
+
+volumes:
+  project_data:
+    external: true
+
+networks:
+  default:
+    driver: bridge
