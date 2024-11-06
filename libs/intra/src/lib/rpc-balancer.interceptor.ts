@@ -9,14 +9,14 @@ import {
 } from '@nestjs/common';
 import { Observable, of, TimeoutError } from 'rxjs';
 import { catchError, map, tap, timeout } from 'rxjs/operators';
-import { RedisLockService } from '@exchanges/redis';
+import { LockRedisService } from '@exchanges/redis';
 import { RPC_PAYLOAD, RPC_RESPONSE, rpcErrorMessage } from '@exchanges/common';
 
 @Injectable()
 export class BalancerInterceptor implements NestInterceptor {
-  private readonly timeoutLimit = 60000; // 1 minutes
+  private readonly timeoutLimit = 60000; // 1 minute
 
-  constructor(private readonly lock: RedisLockService) {}
+  constructor(private readonly lock: LockRedisService) {}
 
   async intercept(
     context: ExecutionContext,
@@ -40,18 +40,17 @@ export class BalancerInterceptor implements NestInterceptor {
     let lock: any;
     try {
       lock = await this.lock.tryLockResource(data.lockId, 0, data.lockTtl);
-
       // tryLockResource can return NULL
       if (!lock) {
         const error = `Failed to lock resource ${data.lockId}`;
         const message = `RPC ERROR: ${
           data.lockId
-        } of ${method} with ${JSON.stringify(data)}, error: ${error}`;
+        } of [${method}] with ${JSON.stringify(data)}, error: ${error}`;
 
         // Logger.error(error, message, 'BalancerInterceptor');
 
         return of({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          statusCode: HttpStatus.UNPROCESSABLE_ENTITY,
           error,
           message,
         });
@@ -65,7 +64,7 @@ export class BalancerInterceptor implements NestInterceptor {
       );
 
       return of({
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        statusCode: HttpStatus.UNPROCESSABLE_ENTITY,
         error: err.message,
       });
     }
@@ -73,6 +72,7 @@ export class BalancerInterceptor implements NestInterceptor {
     // wait for lock to be released
     if (!instanceFlag) {
       while (!lock && Date.now() - start < this.timeoutLimit) {
+        // sleep for 50 ms
         await new Promise((resolve) => setTimeout(resolve, 50));
 
         lock = await this.lock.tryLockResource(data.lockId, 0, data.lockTtl);

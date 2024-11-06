@@ -1,4 +1,4 @@
-import { Controller, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, HttpStatus, UseGuards, UseInterceptors } from '@nestjs/common';
 import {
   API_METHODS,
   MICRO_SERVICE,
@@ -6,7 +6,7 @@ import {
   RPC_RESPONSE,
   Ticker,
 } from '@exchanges/common';
-import { BalancerGuard } from '@exchanges/intra';
+import { BalancerGuard, BalancerInterceptor } from '@exchanges/intra';
 import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 import { AppService } from './app.service';
 
@@ -14,6 +14,7 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly service: AppService) {}
 
+  @UseInterceptors(BalancerInterceptor)
   @MessagePattern(API_METHODS[MICRO_SERVICE.TICKER].getSymbols)
   async getSymbols(): Promise<RPC_RESPONSE<string[]>> {
     return {
@@ -22,6 +23,7 @@ export class AppController {
     };
   }
 
+  @UseInterceptors(BalancerInterceptor)
   @MessagePattern(API_METHODS[MICRO_SERVICE.TICKER].addSymbol)
   async addSymbol(
     @Payload()
@@ -51,6 +53,7 @@ export class AppController {
     };
   }
 
+  @UseInterceptors(BalancerInterceptor)
   @MessagePattern(API_METHODS[MICRO_SERVICE.TICKER].deleteSymbol)
   async deleteSymbol(
     @Payload()

@@ -5,11 +5,11 @@ import {
   Logger,
 } from '@nestjs/common';
 import { RPC_PAYLOAD } from '@exchanges/common';
-import { RedisLockService } from '@exchanges/redis';
+import { LockRedisService } from '@exchanges/redis';
 
 @Injectable()
 export class BalancerGuard implements CanActivate {
-  constructor(private readonly lock: RedisLockService) {}
+  constructor(private readonly lock: LockRedisService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const data = context.switchToRpc().getData() as RPC_PAYLOAD<any>;
