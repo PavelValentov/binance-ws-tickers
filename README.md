@@ -49,7 +49,7 @@ cp .env.example .env
 4. Запустите сервисы при помощи Docker Compose:
 
 ```bash
-docker-compose up --build
+npm run docker:run
 ```
 
 После выполнения данных команд, микросервисы будут запущены и доступны.
